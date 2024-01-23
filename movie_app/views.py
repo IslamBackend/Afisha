@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from movie_app.models import Movie, Director, Review
-from movie_app.serializers import MovieSerializer, DirectorSerializer, ReviewSerializer
+from movie_app.serializers import MovieSerializer, DirectorSerializer, ReviewSerializer, MoviesReviewsSerializer
 
 
 @api_view(['GET'])
@@ -69,4 +69,11 @@ def review_view(request, id):
     except Review.DoesNotExist as e:
         return Response({'ERROR!!!': str(e)})
     serializer = ReviewSerializer(review)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def movies_reviews_view(request):
+    movies = Movie.objects.all()
+    serializer = MoviesReviewsSerializer(movies, many=True)
     return Response(serializer.data)
