@@ -2,10 +2,36 @@ from rest_framework import serializers
 from movie_app.models import Director, Movie, Review
 
 
-class MovieSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = ('id', 'title', 'description', 'duration')
+class MovieSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255)
+    description = serializers.CharField()
+    duration = serializers.IntegerField()
+    directors_id = serializers.IntegerField()
+
+    def validate_directors_id(self, value):
+        try:
+            Director.objects.get(id=value)
+        except Director.DoesNotExist as e:
+            raise serializers.ValidationError(str(e))
+
+        return value
+
+    def create(self, validated_data):
+        title = validated_data.get('title')
+        description = validated_data.get('description')
+        duration = validated_data.get('duration')
+        directors_id = validated_data.get('directors_id')
+        # try:
+        #     director = Director.objects.get(id=directors_id)
+        # except Director.DoesNotExist:
+        #     return Response({'error': 'Director not found'}, status=404)
+        movie = Movie.objects.create(
+            title=title,
+            description=description,
+            duration=duration,
+            directors_id=directors_id
+        )
+        return movie
 
 
 class DirectorSerializer(serializers.ModelSerializer):
@@ -107,6 +133,11 @@ class ReviewsValidateSerializer(serializers.Serializer):
     movie_id = serializers.IntegerField()
     stars = serializers.IntegerField()
 
+    def validate_stars(self, value):
+        if value < 0 or value > 5:
+            raise serializers.ValidationError("Movie id must be between 0 and 5")
+        return value
+
     def validate_movie_id(self, value):
         try:
             Movie.objects.get(id=value)
@@ -122,5 +153,14 @@ class ReviewsValidateSerializer(serializers.Serializer):
         review = Review.objects.create(
             text=text,
             movie_id=movie_id,
-            stars=stars)
+            stars=stars
+        )
         return review
+
+    def update(self, instance, validated_data):
+        instance.text = validated_data.get('text')
+        instance.movie_id = validated_data.get('movie_id')
+        instance.stars = validated_data.get('stars')
+        instance.save()
+        return instance
+
