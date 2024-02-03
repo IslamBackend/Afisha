@@ -49,8 +49,7 @@ class ConfirmationView(APIView):
         user.is_active = True
         user.save()
         confirmation.delete()
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'status': 'User activated', 'token': token.key}, status=status.HTTP_200_OK)
+        return Response({'status': 'User activated'}, status=status.HTTP_200_OK)
 
 
 # @api_view(['POST'])
