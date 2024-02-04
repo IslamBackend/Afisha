@@ -1,6 +1,7 @@
 asgiref==3.7.2
 Django==5.0.1
 django-jazzmin==2.6.0
+django-querycount==0.8.3
 djangorestframework==3.14.0
 drf-yasg==1.21.7
 inflection==0.5.1
